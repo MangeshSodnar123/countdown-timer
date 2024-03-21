@@ -1,0 +1,12 @@
+.countdown-wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+    color: #39AEBC;
+}
+
+.button{
+    background-color: #39AEBC;
+}
