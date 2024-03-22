@@ -1,12 +1,24 @@
-.countdown-wrapper{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin-top: 50px;
-    color: #39AEBC;
+.countdown-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* margin-top: 50px; */
+  color: #39aebc;
+  /* overflow-y: auto;
+  max-height: 100vh; */
 }
 
-.button{
-    background-color: #39AEBC;
+.button {
+  background-color: #39aebc;
+}
+
+.title-box{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  font-size: medium;
+  font-weight: 700;
 }

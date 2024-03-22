@@ -1,0 +1,49 @@
+.card{
+    /* background-color: gray !important; */
+    height: 80px;
+    width: 80px;
+    margin: 0;
+    padding: 0;
+
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    border: 1px solid #39AEBC;
+
+}
+
+.digit{
+    height: 70%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    background-color: white;
+    color: #39AEBC;
+    font-size: 3rem;
+    font-weight: 400;
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center; 
+
+}
+
+.entity{
+    height: 30%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    color: white;
+    background-color: #39AEBC;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 700;
+
+}

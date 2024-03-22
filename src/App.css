@@ -36,3 +36,17 @@
     transform: rotate(360deg);
   }
 }
+
+.app-wrapper {
+  overflow-y: auto;
+  height: 100vh; 
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.footer{
+  margin-top: auto;
+}
+

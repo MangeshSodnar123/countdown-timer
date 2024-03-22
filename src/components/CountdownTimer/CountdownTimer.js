@@ -1,171 +1,120 @@
 import React, { useEffect, useState } from "react";
 import { TextField, Typography, Box, Button, Stack } from "@mui/material";
 import "./CountdownTimer.css";
+import NumberCard from "../NumberCard/NumberCard";
+import { useMediaQuery } from "@mui/material";
 
 const CountdownTimer = () => {
-  const [datetime, setDatetime] = useState(0);
+  const [targetDate, setTargetDate] = useState(
+    localStorage.getItem("targetDate") || ""
+  );
   const [timerObject, setTimerObject] = useState({});
-  const [timerRunning, setTimerRunning] = useState(false);
   const [intervalId, setIntervalId] = useState(null);
+  const [countdownStarted, setCountdownStarted] = useState(false);
+  const [message, setMessage] = useState("Set the timer...")
+
+  // Use media query to check screen size
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    console.log("datetime: ", datetime);
-    // console.log("timerObject: ", timerObject);
-  }, [datetime, timerObject, timerRunning, intervalId]);
+    if (countdownStarted && targetDate) {
+      const interval = setInterval(() => {
+        const currentTime = new Date();
+        const selectedDate = new Date(targetDate);
+        const timeDifference = selectedDate - currentTime;
 
-  /**
-   * This function will count {days, hours, minutes, seconds } between two dates.
-   * @param {string} date1
-   * @param {string} date2
-   * @returns {object} {days, hours, minutes, seconds }
-   */
-  const calculateTimeDifference = (date1, date2) => {
-    let seconds = Math.floor((date1 - date2) / 1000);
+        if (timeDifference <= 0) {
+          clearInterval(interval);
+          localStorage.removeItem("targetDate");
 
-    let days = Math.floor(seconds / (24 * 60 * 60));
+          setTimerObject({});
+          setMessage("Countdown completed! Set new timer.")
+        } else {
+          const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor(
+            (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          );
+          const minutes = Math.floor(
+            (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+          );
+          const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
 
-    seconds = seconds % (24 * 60 * 60);
+          setTimerObject({ days, hours, minutes, seconds });
+        }
+      }, 1000);
 
-    let hours = Math.floor(seconds / (60 * 60));
+      setIntervalId(interval);
+    }
+  }, [targetDate, countdownStarted]);
 
-    seconds = seconds % (60 * 60);
-
-    let minutes = Math.floor(seconds / 60);
-
-    seconds = seconds % 60;
-
-    return { days, hours, minutes, seconds };
-  };
-
-  /**
-   * This function will insure entered date is correct and within our bounds
-   * @param {string} dateTime
-   *
-   */
-  const handleSetDatetime = (dateTime) => {
-    if (!timerRunning) {
-      let timerDate = new Date(dateTime);
-      let currDate = new Date();
-
-      let diffInDays = Math.floor(
-        (timerDate - currDate) / (1000 * 24 * 60 * 60)
-      );
-
-      let diffInSeconds = Math.floor((timerDate - currDate) / 1000);
-
-      if (diffInSeconds > 0 && diffInDays <= 100) {
-        setDatetime(dateTime);
-
-        let { days, hours, minutes, seconds } = calculateTimeDifference(
-          timerDate,
-          currDate
-        );
-
-        setTimerObject({ days, hours, minutes, seconds });
-      } else {
-        console.log("Enter valid date.");
-      }
-
-      // console.log("timerDate: ", timerDate);
-      // console.log("currDate: ", currDate);
+  const handleStartCountdown = () => {
+    if (!countdownStarted) {
+      localStorage.setItem("targetDate", targetDate);
+      setCountdownStarted(true);
+      // setTimerObject("Countdown started!");
+      setMessage("Countdown started!");
     }
   };
 
-  /**
-   * This function updates the timerObject
-   */
-  const updateTimerObject = () => {
-    let timerDate = new Date(datetime);
-    let currDate = new Date();
-
-    let { days, hours, minutes, seconds } = calculateTimeDifference(
-      timerDate,
-      currDate
-    );
-
-    setTimerObject({ days, hours, minutes, seconds });
-  };
-
-  const cancelTimer = () => {
-    // setTimerObject({days:0,hours:0,minutes:0,seconds:0});
+  const handleCancelCountdown = () => {
     clearInterval(intervalId);
-    setDatetime(0);
-    setTimerObject({});
-    setTimerRunning(false);
     setIntervalId(null);
-  };
-
-  /**
-   * This function will start the timer.
-   */
-  const handleStartTimer = () => {
-    if (datetime!==0) {
-      console.log("timerObject: ", timerObject);
-
-      // Set the interval (in milliseconds)
-      const interval = 1000;
-      setTimerRunning(true);
-      // Run the function at the specified interval
-      const currIntervalId = setInterval(updateTimerObject, interval);
-      setIntervalId(currIntervalId);
-
-      let timerDate = new Date(datetime);
-      let currDate = new Date();
-
-      setTimeout(() => {
-        clearInterval(intervalId);
-        cancelTimer();
-      }, timerDate - currDate);
-    }
+    setTimerObject({});
+    setTargetDate("");
+    setCountdownStarted(false);
+    setMessage("Countdown Canceled! Set new Timer.");
+    localStorage.removeItem("targetDate");
   };
 
   return (
-    <Box className="countdown-wrapper" gap={5}>
-      <Typography sx={{ fontSize: 32, color: "#39AEBC" }}>
-        Countdown Timer
-      </Typography>
-      <TextField
-        label="Select Date and Time"
-        type="datetime-local"
-        InputLabelProps={{
-          shrink: true,
-        }}
-        onChange={(e) => handleSetDatetime(e.target.value)}
-      />
-      <Button
-        variant="contained"
-        className="button"
-        sx={{
-          backgroundColor: "#39AEBC",
-          "&:hover": {
+    <>
+      <Box className="countdown-wrapper" gap={5}>
+        <Box className="title-box">
+          <Typography sx={{ fontSize: 32, color: "#39AEBC" , fontWeight:"700"}}>
+            Countdown Timer
+          </Typography>
+          <p >{message}</p>
+        </Box>
+        <input
+          type="datetime-local"
+          value={targetDate}
+          onChange={(e) => setTargetDate(e.target.value)}
+        />
+        <Button
+          variant="contained"
+          className="button"
+          sx={{
             backgroundColor: "#39AEBC",
-          },
-        }}
-        onClick={handleStartTimer}
-      >
-        Start Timer
-      </Button>
-      <Button
-        variant="outlined"
-        className="button"
-        sx={{
-          backgroundColor: "#39AEBC",
-          "&:hover": {
-            backgroundColor: "#39AEBC",
-          },
-        }}
-        onClick={cancelTimer}
-      >
-        Cancel
-      </Button>
+            "&:hover": {
+              backgroundColor: "#39AEBC",
+            },
+            fontWeight:"600"
+          }}
+          onClick={handleStartCountdown}
+        >
+          Start Timer
+        </Button>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={handleCancelCountdown}
+          sx={{fontWeight:"600"}}
+        >
+          Cancel
+        </Button>
 
-      <Stack direction="row" spacing={2}>
-        <h3>{timerObject.days}</h3>
-        <h3>{timerObject.hours}</h3>
-        <h3>{timerObject.minutes}</h3>
-        <h3>{timerObject.seconds}</h3>
-      </Stack>
-    </Box>
+        <Stack
+          direction={isSmallScreen ? "column" : "row"}
+          spacing={2}
+          sx={{ padding: "2px" }}
+        >
+          <NumberCard entity="days" value={timerObject.days || 0} />
+          <NumberCard entity="hours" value={timerObject.hours || 0} />
+          <NumberCard entity="minutes" value={timerObject.minutes || 0} />
+          <NumberCard entity="seconds" value={timerObject.seconds || 0} />
+        </Stack>
+      </Box>
+    </>
   );
 };
 
